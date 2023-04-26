@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    environment:
+      - http.cors.enabled=true
+      - http.cors.allow-origin="*"
+      - discovery.type=single-node
+      # - http.cors.allow-methods="GET,POST,PUT,DELETE"
+      # - http.cors.allow-headers="X-Requested-With,X-Auth-Token,Content-Type,Content-Length"
+      - http.cors.allow-credentials=true
+    network_mode: "host"
+
+
+    # ports:
+    #   - 9200:9200
+    #   - 9300:9300
+
+  elasticvue:
+    image: cars10/elasticvue
+    # ports:
+    #   - 8080:8080
+    network_mode: "host"
+
+  flask:
+    build: .
+    # ports:
+    #   - 8000:8000
+    depends_on:
+      - elasticsearch
+      - elasticvue
+    network_mode: "host"
+  
+

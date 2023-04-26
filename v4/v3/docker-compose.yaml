@@ -17,15 +17,9 @@ services:
       - 8080:8080
 
   flask:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    build: .
     ports:
-      - 5000:5000
+      - 8000:8000
     depends_on:
       - elasticsearch
-
-networks:
-  my_network:
+      - elasticvue
