@@ -16,4 +16,24 @@ services:
     ports:
       - 8080:8080
 
+  flask:
+    build: ./flask
+    ports:
+      - 5000:5000
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
 
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - elasticsearch
+      - elasticvue
+      - flask
