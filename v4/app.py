@@ -7,15 +7,38 @@ CORS(app)
 
 ELASTICSEARCH_URL = "http://127.0.0.1:9200"
 
-@app.route('/', methods=['GET', 'POST', 'PUT', 'DELETE'])
-# @cross_origin()
-@app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+# @app.route('/', methods=['GET', 'POST', 'PUT', 'DELETE'])
+# # @cross_origin()
+# @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@app.route('/', methods=['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE'])
+@cross_origin()
+def forward_request_root():
+    data = request.get_data()
+    headers = {'Content-Type' : 'application/json'}
+    try:
+        response = requests.request(
+            method=request.method,
+            url=f"{ELASTICSEARCH_URL}",
+            headers=headers,
+            data=data,
+            timeout=5,
+        )
+        app.logger.info(response.text)
+        return Response(response.content, response.status_code)
+                        # headers=dict(response.headers))
+
+    except requests.exceptions.RequestException as e:
+        return Response(str(e)+"PQR", 500, headers={'Content-Type': 'text/plain'})
+        
+@app.route('/<path:path>', methods=['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE'])
+
 @cross_origin()
 def forward_request(path):
     url = f"http://127.0.0.1:9200/{path}"
     app.logger.info("XYZ")
-    headers = dict(request.headers)
+    # headers = dict(request.headers)
     data = request.get_data()
+    headers = {'Content-Type' : 'application/json'}
     try:
         response = requests.request(
             method=request.method,
@@ -25,11 +48,18 @@ def forward_request(path):
             timeout=5,
         )
         # app.logger.info(response,"Abc")
-        return Response(response.content, response.status_code, headers=dict(response.headers))
-
+        # return Response(response.content, response.status_code, headers=dict(response.headers))
+        app.logger.info(response.text)
+        return Response(response.content, response.status_code)
+                        # , headers=dict(response.headers))
+ 
     except requests.exceptions.RequestException as e:
         return Response(str(e)+"PQR", 500, headers={'Content-Type': 'text/plain'})
         
+
+
+
+
 
 
 if __name__ == '__main__':
